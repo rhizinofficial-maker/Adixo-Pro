@@ -34,7 +34,8 @@ def home():
 def get_formats():
     url = request.json.get('url')
     try:
-        with yt_dlp.YoutubeDL({'nocolor': True}) as ydl:
+        # Yahan humne cookies add kar di hain taaki bot error na aaye
+        with yt_dlp.YoutubeDL({'nocolor': True, 'cookiefile': 'cookies.txt'}) as ydl:
             info = ydl.extract_info(url, download=False)
             formats = []
             seen_res = set()
@@ -44,7 +45,6 @@ def get_formats():
                     height = f.get('height')
                     if not height: continue
                     
-                    # Premium Quality Naming
                     if height >= 4320: res_name = '8K'
                     elif height >= 2160: res_name = '4K'
                     elif height >= 1440: res_name = '2K'
@@ -58,7 +58,6 @@ def get_formats():
                     if res_name not in seen_res:
                         seen_res.add(res_name)
                         
-                        # Real Size Calculation in MB/GB
                         size_bytes = f.get('filesize') or f.get('filesize_approx') or 0
                         if size_bytes > 0:
                             if size_bytes >= 1024**3:
@@ -75,7 +74,6 @@ def get_formats():
                             'height': height
                         })
             
-            # Sort qualities from Highest to Lowest
             formats = sorted(formats, key=lambda x: x['height'], reverse=True)
             return jsonify({'status': 'success', 'title': info.get('title'), 'thumbnail': info.get('thumbnail'), 'formats': formats})
     except Exception as e:
@@ -102,7 +100,8 @@ def download():
         'outtmpl': os.path.join(path, '%(title)s.%(ext)s'),
         'progress_hooks': [progress_hook],
         'nocolor': True,
-        'concurrent_fragment_downloads': 10
+        'concurrent_fragment_downloads': 10,
+        'cookiefile': 'cookies.txt' # Yahan bhi cookies add kar di hain
     }
     
     try:
