@@ -34,8 +34,13 @@ def home():
 def get_formats():
     url = request.json.get('url')
     try:
-        # Yahan humne cookies add kar di hain taaki bot error na aaye
-        with yt_dlp.YoutubeDL({'nocolor': True, 'cookiefile': 'cookies.txt'}) as ydl:
+        # MAGIC TRICK: Hum YouTube ko bata rahe hain ki hum Android/TV se hain
+        ydl_opts = {
+            'nocolor': True, 
+            'cookiefile': 'cookies.txt',
+            'extractor_args': {'youtube': {'client': ['android', 'tv', 'ios']}}
+        }
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
             formats = []
             seen_res = set()
@@ -94,6 +99,7 @@ def download():
     if not os.path.exists(path): 
         os.makedirs(path)
 
+    # Yahan bhi MAGIC TRICK add ki gayi hai
     ydl_opts = {
         'format': f'{format_id}+bestaudio/best',
         'merge_output_format': 'mp4',
@@ -101,7 +107,8 @@ def download():
         'progress_hooks': [progress_hook],
         'nocolor': True,
         'concurrent_fragment_downloads': 10,
-        'cookiefile': 'cookies.txt' # Yahan bhi cookies add kar di hain
+        'cookiefile': 'cookies.txt',
+        'extractor_args': {'youtube': {'client': ['android', 'tv', 'ios']}}
     }
     
     try:
