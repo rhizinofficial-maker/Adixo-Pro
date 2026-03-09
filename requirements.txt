@@ -1,4 +1,5 @@
 flask
-yt-dlp
+git+https://github.com/yt-dlp/yt-dlp.git
 gunicorn
 nodejs-bin
+
